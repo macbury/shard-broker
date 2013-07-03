@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session>
+  <action type="login" id="1">
+    <token>abcdefgh</token>
+  </action>
+
+  <response for="login" status="200" id="1">
+    <device id="12345">
+      <signing-key>absde</signing-key>
+      <encryption-key>abvder</encryption-key>
+    </device>
+  </response>
+  
+  <action type="register-or-login" id="2">
+    <login>macbury@gmail.com</login>
+    <password>test1234</password>
+    <device>1234567890</device>
+    <signing-key>
+      absde
+    </signing-key>
+    <encryption-key>
+      abvder
+    </encryption-key>
+  </action>
+  <response for="register-or-login" status="501">
+    <error>Invalid name</error>
+  </response>
+
+  <action type="push-shard" id="4">
+    <to>1234</to>
+    <from>4321</from>
+    <data><!-- encoded base64 encrypted data --></data>
+    <signature><!-- encoded base64 signature --></signature>
+  </action>
+
+  <response for="push-shard" status="200" id="4" />
+</session>
