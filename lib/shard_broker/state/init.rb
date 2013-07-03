@@ -15,7 +15,7 @@ module ShardBroker
           elsif node.type?(ShardBroker::Action::ACTION_AUTH)
             handleAuthNode(node) 
           else
-            connection.write_error(ShardBroker::Status::UNSUPPORTED_TYPE_ERROR, "", node.getId)
+            connection.writeActionError(node, ShardBroker::Status::UNSUPPORTED_TYPE_ERROR, "")
           end
         else
           connection.write_error(ShardBroker::Status::UNDEFINED_COMMAND_ERROR)
@@ -29,10 +29,33 @@ module ShardBroker
       private
 
       def handleRegistrationNode(node)
-        if validRegistrationNode?(node)
-          
+        params = {
+          "email"           => nil,
+          "password"        => nil,
+          "device"          => nil,
+          "signing-key"     => nil,
+          "encryption-key"  => nil,
+        }.merge(node.params)
+
+        user = User.authOrCreateByEmailAndPassword(params["email"], params["password"])
+
+        if user
+          if user.valid?
+            peer     = user.addPeer(params["device"], params["encryption-key"], params["signing-key"]) 
+            if peer.valid?
+              response = node.getResponse
+              response.setStatus(ShardBroker::Status::SUCCESS)
+              response.addParam("token", peer.token)
+              connection.write(response)
+              connection.close
+            else
+              connection.writeActionError(node, ShardBroker::Status::REGISTRATION_ERROR, peer.errors.full_messages.join(", "))
+            end
+          else
+            connection.writeActionError(node, ShardBroker::Status::REGISTRATION_ERROR, user.errors.full_messages.join(", "))
+          end
         else
-          connection.write_error(ShardBroker::Status::INVALID_ACTION_PACKAGE, "Invalid package", node.getId)
+          connection.writeActionError(node, ShardBroker::Status::INVALID_PASSWORD_ERROR, "Invalid password")
         end
       end
 
@@ -40,12 +63,8 @@ module ShardBroker
         if node.have?(ShardBroker::Action::ELEMENT_TOKEN)
           
         else
-          connection.write_error(ShardBroker::Status::INVALID_ACTION_PACKAGE, "No #{ShardBroker::Action::ELEMENT_TOKEN.inspect} element!", node.getId)
+          connection.writeActionError(node, ShardBroker::Status::INVALID_ACTION_PACKAGE, "No #{ShardBroker::Action::ELEMENT_TOKEN.inspect} element!")
         end
-      end
-
-      def validRegistrationNode?(node)
-        node.have?(ShardBroker::Action::LOGIN_TAG) && node.have?(ShardBroker::Action::PASSWORD_TAG) && node.have?(ShardBroker::Action::DEVICE_TAG) && node.have?(ShardBroker::Action::ENCRYPTION_KEY_TAG) && node.have?(ShardBroker::Action::SIGN_KEY_TAG)
       end
     end
   end

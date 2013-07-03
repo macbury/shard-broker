@@ -5,14 +5,22 @@
   </action>
 
   <response for="login" status="200" id="1">
+    <relationship status="single" />
     <device id="12345">
       <signing-key>absde</signing-key>
       <encryption-key>abvder</encryption-key>
     </device>
   </response>
   
+  <action type="invite" id="10">
+    <email>other email</email>
+  </action>
+  <response for="invite" status="200" id="10">
+
+  </response>
+
   <action type="register-or-login" id="2">
-    <login>macbury@gmail.com</login>
+    <email>macbury@gmail.com</email>
     <password>test1234</password>
     <device>1234567890</device>
     <signing-key>

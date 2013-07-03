@@ -20,5 +20,11 @@ module ShardBroker
       @current_state
     end
 
+    def runStateWith(node)
+      if getCurrentState
+        EM.synchrony { getCurrentState.onAction(node) }
+      end
+    end
+
   end
 end

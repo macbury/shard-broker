@@ -26,10 +26,17 @@ module ShardBroker
       close
     end
 
+    def writeActionError(action, status, msg=nil)
+      response = action.getResponse
+      response.setStatus(status)
+      response.addError(msg.to_s) if msg
+      write(response)
+    end
+
     def write_error(status, msg=nil,id=nil)
       response = Response.new
       response.setStatus(status)
-      response.add_attribute("id", id) if id
+      response.setId(id)
       response.addError(msg.to_s) if msg
       write(response)
     end

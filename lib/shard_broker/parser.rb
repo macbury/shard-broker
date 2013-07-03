@@ -10,7 +10,7 @@ module ShardBroker
       @parser.listen(:start_element) do |uri, localname, qname, attributes|
         node = nil
         if qname == ProtocolTags::SESSION_TAG
-          return
+          node = nil
         elsif qname == ShardBroker::Action::TAG
           node = ShardBroker::Action.new
         elsif qname == ShardBroker::Response::TAG
@@ -19,8 +19,10 @@ module ShardBroker
           node = ShardBroker::Node.new(qname)
         end
 
-        node.add_attributes(attributes)
-        @current_node = @current_node.nil? ? node : @current_node.add_element(node)
+        if node
+          node.add_attributes(attributes)
+          @current_node = @current_node.nil? ? node : @current_node.add_element(node)
+        end
       end
 
       @parser.listen(:end_element) do |uri, localname, qname|
@@ -30,7 +32,7 @@ module ShardBroker
         elsif !@current_node.nil? 
           if @current_node.parent.nil?
             if @current_node.haveValidId?
-              processNode(@current_node)
+              runStateWith(@current_node)
             else
               write_error(ShardBroker::Status::NO_ID_ATTRIBUTE)
             end
@@ -56,10 +58,6 @@ module ShardBroker
       end
 
       read(getSessionHeaderXML)
-    end
-
-    def processNode(node)
-      getCurrentState.onAction(node) if getCurrentState
     end
 
     def read(content)

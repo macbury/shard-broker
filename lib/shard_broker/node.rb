@@ -13,8 +13,16 @@ module ShardBroker
       attribute("id")
     end
 
+    def setId(id)
+      attribute("id", id)
+    end
+
     def have?(have_type)
       self.elements[have_type.to_s].present?
+    end
+
+    def params
+      elements.to_a.inject({}) { |out, element| out[element.name] = element.text; out;  }
     end
   end
 end

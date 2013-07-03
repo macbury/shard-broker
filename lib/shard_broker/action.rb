@@ -15,7 +15,22 @@ module ShardBroker
     end
 
     def type?(typ)
-      attribute("type").to_s == typ.to_s
+      getType == typ.to_s
+    end
+
+    def getType
+      attribute("type").to_s
+    end
+
+    def setType(type)
+      attribute("type", type)
+    end
+
+    def getResponse
+      response = Response.new
+      response.setId(getId)
+      response.setFor(getType)
+      return response
     end
   end
 end
