@@ -5,6 +5,11 @@ class Command < Thor
     ShardBroker.start
   end
   
+  desc "console", "enter console"
+  def console
+    ShardBroker.console
+  end  
+
   desc "stop", "stop demon"
   def stop
     #Peon.stop

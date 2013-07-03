@@ -27,3 +27,6 @@ require_relative "shard_broker/protocol_tags"
 require_relative "shard_broker/connection"
 require_relative "shard_broker/logger"
 require_relative "shard_broker/server"
+
+require_relative "shard_broker/models/user"
+require_relative "shard_broker/models/peer"

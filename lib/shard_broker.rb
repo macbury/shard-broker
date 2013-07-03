@@ -20,6 +20,15 @@ module ShardBroker
     dbconfig
   end
 
+  def self.console
+    require "pry"
+    EventMachine.synchrony do
+      connectToDB
+      binding.pry
+      EM.stop
+    end
+  end
+
   def self.start
     EventMachine.run do
       connectToDB
