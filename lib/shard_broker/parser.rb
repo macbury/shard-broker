@@ -56,8 +56,6 @@ module ShardBroker
       @parser.listen(:cdata) do |text|
         @current_node.add(REXML::CData.new(text)) if @current_node
       end
-
-      read(getSessionHeaderXML)
     end
 
     def read(content)

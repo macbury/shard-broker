@@ -1,7 +1,7 @@
 module ShardBroker
   module State
     class Init < Base
-      TIMEOUT = 15
+      TIMEOUT = ShardBroker.env == :development ? 120 : 15
 
       def onEnter
         timeoutAfter!(TIMEOUT)
@@ -20,6 +20,10 @@ module ShardBroker
         else
           connection.write_error(ShardBroker::Status::UNDEFINED_COMMAND_ERROR)
         end
+      end
+
+      def onResponse(node)
+        
       end
 
       def onExit
@@ -46,8 +50,10 @@ module ShardBroker
               response = node.getResponse
               response.setStatus(ShardBroker::Status::SUCCESS)
               response.addParam("token", peer.token)
+              response.addParam("in-relationship", user.inRelationship?)
+
               connection.write(response)
-              connection.close
+              proceedAuthWithPeer(peer)
             else
               connection.writeActionError(node, ShardBroker::Status::REGISTRATION_ERROR, peer.errors.full_messages.join(", "))
             end
@@ -61,9 +67,36 @@ module ShardBroker
 
       def handleAuthNode(node)
         if node.have?(ShardBroker::Action::ELEMENT_TOKEN)
-          
+          params = {
+            "token" => nil
+          }.merge(node.params)
+
+          peer = Peer.where(token: params["token"]).first
+          if peer
+            response = node.getResponse
+            response.setStatus(ShardBroker::Status::SUCCESS)
+            response.addParam("in-relationship", peer.user.inRelationship?)
+            connection.write(response)
+
+            proceedAuthWithPeer(peer)
+          else
+            connection.writeActionError(node, ShardBroker::Status::INVALID_PASSWORD_ERROR, "Invalid token")
+          end
         else
           connection.writeActionError(node, ShardBroker::Status::INVALID_ACTION_PACKAGE, "No #{ShardBroker::Action::ELEMENT_TOKEN.inspect} element!")
+        end
+      end
+
+      def proceedAuthWithPeer(peer)
+        ShardBroker.server.closeConnectionForPeer(peer)
+        connection.peer = peer
+        peer.last_login = Time.now
+        peer.save
+
+        if peer.user.inRelationship?
+          connection.go ShardBroker::State::Sync
+        else
+          connection.go ShardBroker::State::Relationship
         end
       end
     end

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <session>
-  <action type="login" id="1">
-    <token>abcdefgh</token>
+  <action type="auth" id="1">
+    <token>972ddcd4d929bd2b0bb31b063b8965d2</token>
   </action>
 
-  <response for="login" status="200" id="1">
+  <response for="auth" status="200" id="1">
     <relationship status="single" />
     <device id="12345">
       <signing-key>absde</signing-key>
@@ -13,8 +13,13 @@
   </response>
   
   <action type="invite" id="10">
-    <email>other email</email>
+    <email>macbury@gmail.com</email>
   </action>
+
+  <action type="invite-accept" id="10">
+    <email>macbury@gmail.com</email>
+  </action>
+
   <response for="invite" status="200" id="10">
 
   </response>
@@ -23,12 +28,8 @@
     <email>macbury@gmail.com</email>
     <password>test1234</password>
     <device>1234567890</device>
-    <signing-key>
-      absde
-    </signing-key>
-    <encryption-key>
-      abvder
-    </encryption-key>
+    <signing-key>absde</signing-key>
+    <encryption-key>abvder</encryption-key>
   </action>
   <response for="register-or-login" status="501">
     <error>Invalid name</error>

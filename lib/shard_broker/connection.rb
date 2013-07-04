@@ -4,6 +4,8 @@ module ShardBroker
     include ShardBroker::ProtocolTags
     include ShardBroker::Parser
 
+    attr_accessor :peer
+
     def post_init
       prepare_parser
       ShardBroker.server.push(self)
@@ -19,6 +21,10 @@ module ShardBroker
 
     def receive_data(data)
       read(data)
+    end
+
+    def havePeer?
+      !peer.nil?
     end
 
     def timeout!

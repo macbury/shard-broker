@@ -14,7 +14,7 @@ module ShardBroker
     end
 
     def setId(id)
-      attribute("id", id)
+      self.add_attribute("id", id)
     end
 
     def have?(have_type)
@@ -23,6 +23,12 @@ module ShardBroker
 
     def params
       elements.to_a.inject({}) { |out, element| out[element.name] = element.text; out;  }
+    end
+
+    def addParam(key, value)
+      p      = REXML::Element.new(key)
+      p.text = value
+      self << p
     end
   end
 end

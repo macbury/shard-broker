@@ -1,13 +1,14 @@
 module ShardBroker
-  
   module State
-    
     class Base
       attr_accessor :connection
 
       def initialize(connection)
         self.connection = connection
-        
+      end
+
+      def onResponse(action)
+        raise "Implement onAction"
       end
 
       def onAction(action)
@@ -35,9 +36,6 @@ module ShardBroker
         EventMachine.cancel_timer @timeout_timer
         @timeout_timer = nil
       end
-
     end
-
   end
-
 end

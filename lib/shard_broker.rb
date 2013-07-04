@@ -1,7 +1,13 @@
 module ShardBroker
-  
+  VERSION = "0.0.1"
   def self.env
     :development 
+  end
+
+  def self.guid
+    @guid ||= 1
+    @guid += 1
+    @guid
   end
 
   def self.logger

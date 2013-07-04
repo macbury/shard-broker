@@ -4,8 +4,11 @@ class User < ActiveRecord::Base
   validates :salt, :encrypted_password, presence: true
   validates :password, presence: true, length: { minimum: 3, maximum: 12 }, on: :create
 
-  has_many  :peers, dependent: :destroy
-
+  has_many   :peers, dependent: :destroy
+  
+  has_many    :relationships, dependent: :delete_all
+  has_one     :relationship,  class_name: "Relationship", foreign_key: "partner_id"
+  has_many    :invitations,   class_name: "Relationship", foreign_key: "partner_id"
   attr_accessor   :password
 
   def self.authOrCreateByEmailAndPassword(email, password)
@@ -37,5 +40,26 @@ class User < ActiveRecord::Base
     peer.signing_key    = signing_key
     peer.save
     peer
+  end
+
+  def inRelationship?
+    relationship = self.relationships.isAccepted.first || self.relationship
+    (!relationship.nil? && relationship.accepted?)
+  end
+
+  def invite!(user)
+    partner = relationships.find_or_initialize_by(partner_id: user.id)
+    partner.save
+  end
+
+  def accept!(user)
+    partner           = relationships.find_by(partner_id: user.id)
+    partner.accepted  = true
+    result            = partner.save
+
+    self.relationships.isNotAccepted.delete_all
+    self.invitations.isNotAccepted.delete_all
+
+    return result
   end
 end

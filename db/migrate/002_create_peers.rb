@@ -6,6 +6,11 @@ class CreatePeers < ActiveRecord::Migration
       t.string :encryption_key, null: false, limit: 1024
       t.string :signing_key, null: false, limit: 1024
       t.string :device_id, null: false
+
+      t.string :chunk_hash
+      t.date   :chunk_date
+
+      t.datetime :last_login
       t.timestamps
     end
   end

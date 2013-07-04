@@ -4,10 +4,11 @@ module ShardBroker
 
     def getSessionHeaderXML
       "<?xml version='1.0'?>\n" + 
-      "<#{SESSION_TAG} secret='#{getConnectionSecret}'>"
+      "<#{SESSION_TAG} secret='#{getConnectionSecret}' version=#{VERSION.inspect}>"
     end
 
     def send_start_stream_tag
+      read(getSessionHeaderXML)
       send_data(getSessionHeaderXML)
     end
 

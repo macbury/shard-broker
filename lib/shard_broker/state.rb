@@ -1,5 +1,7 @@
 require_relative "state/base"
 require_relative "state/init"
+require_relative "state/relationship"
+require_relative "state/sync"
 
 module ShardBroker
   module State
@@ -22,7 +24,13 @@ module ShardBroker
 
     def runStateWith(node)
       if getCurrentState
-        EM.synchrony { getCurrentState.onAction(node) }
+        EM.synchrony do 
+          if node.is?(ShardBroker::Action::TAG)
+            getCurrentState.onAction(node)
+          elsif node.is?(ShardBroker::Response::TAG)
+            getCurrentState.onResponse(node)
+          end
+        end
       end
     end
 

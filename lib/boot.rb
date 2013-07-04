@@ -30,3 +30,4 @@ require_relative "shard_broker/server"
 
 require_relative "shard_broker/models/user"
 require_relative "shard_broker/models/peer"
+require_relative "shard_broker/models/relationship"
