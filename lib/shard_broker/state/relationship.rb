@@ -49,7 +49,7 @@ module ShardBroker
             if userToInvite.inRelationship?
               connection.writeActionError(node, ShardBroker::Status::RELATIONSHIP_ERROR, "User #{userToInvite.email} already in relationship!")
             else
-              if currentUser.accept!(userToInvite)
+              if userToInvite.accept!(currentUser)
                 response = node.getResponse
                 response.setStatus(ShardBroker::Status::SUCCESS)
                 connection.write(response)

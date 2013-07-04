@@ -4,6 +4,11 @@
     <token>972ddcd4d929bd2b0bb31b063b8965d2</token>
   </action>
 
+  <action type="auth" id="2">
+    <token>2f155eeb4d1a17ede5900c27883db814</token>
+  </action>
+  
+
   <response for="auth" status="200" id="1">
     <relationship status="single" />
     <device id="12345">
@@ -13,7 +18,7 @@
   </response>
   
   <action type="invite" id="10">
-    <email>macbury@gmail.com</email>
+    <email>test@test.test</email>
   </action>
 
   <action type="invite-accept" id="10">
@@ -23,6 +28,14 @@
   <response for="invite" status="200" id="10">
 
   </response>
+
+  <action type="register-or-login" id="2">
+    <email>test@test.test</email>
+    <password>test1234</password>
+    <device>1234567892</device>
+    <signing-key>absde</signing-key>
+    <encryption-key>abvder</encryption-key>
+  </action>
 
   <action type="register-or-login" id="2">
     <email>macbury@gmail.com</email>

@@ -43,13 +43,16 @@ class User < ActiveRecord::Base
   end
 
   def inRelationship?
-    relationship = self.relationships.isAccepted.first || self.relationship
-    (!relationship.nil? && relationship.accepted?)
+    (!relation.nil? && relation.accepted?)
   end
 
   def invite!(user)
     partner = relationships.find_or_initialize_by(partner_id: user.id)
     partner.save
+  end
+
+  def relation
+    @relation ||= self.relationships.isAccepted.first || self.relationship
   end
 
   def accept!(user)

@@ -11,5 +11,6 @@ module ShardBroker
     PARAMS_ERROR              = "PARAMS_ERROR"
     RELATIONSHIP_ERROR        = "RELATIONSHIP_ERROR"
     SUCCESS                   = "SUCCESS"
+    REGISTRATION_ERROR        = "REGISTRATION_ERROR"
   end
-end
+end 
