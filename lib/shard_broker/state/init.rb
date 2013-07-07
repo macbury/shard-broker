@@ -1,7 +1,7 @@
 module ShardBroker
   module State
     class Init < Base
-      TIMEOUT = ShardBroker.env == :development ? 120 : 15
+      TIMEOUT = ShardBroker.env == :development ? 120 : 30
 
       def onEnter
         timeoutAfter!(TIMEOUT)
@@ -83,7 +83,9 @@ module ShardBroker
           if peer
             response = node.getResponse
             response.setStatus(ShardBroker::Status::SUCCESS)
+            response.addParam("email",           peer.user.email)
             response.addParam("in-relationship", peer.user.inRelationship?)
+
             connection.write(response)
 
             proceedAuthWithPeer(peer)

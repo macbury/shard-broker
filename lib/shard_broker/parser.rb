@@ -2,7 +2,7 @@ module ShardBroker
   module Parser
 
     def prepare_parser
-      @formatter        = ShardBroker.env == :development ? REXML::Formatters::Transitive.new : REXML::Formatters::Default.new
+      @formatter        = REXML::Formatters::Default.new
       @parser           = REXML::Parsers::SAX2Parser.new('')
       @current_node     = nil
       @xml_stream_start = false
@@ -33,6 +33,7 @@ module ShardBroker
           close_connection_after_writing
         elsif !@current_node.nil? 
           if @current_node.parent.nil?
+            ShardBroker.logger.debug "Recived: "+ @current_node.to_s
             if @current_node.is?(ProtocolTags::PING_TAG)
               ping!
             elsif @current_node.haveValidId?
@@ -84,7 +85,7 @@ module ShardBroker
           ShardBroker.logger.debug line.gsub("\n", "").green 
         end
       end
-      self.send_data(out+"\n")
+      self.send_data("\n"+ out +"\n")
     end
 
   end

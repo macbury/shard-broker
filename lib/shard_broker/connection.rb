@@ -32,8 +32,9 @@ module ShardBroker
     end
 
     def timeout!
+      ShardBroker.logger.info "Timeout for connection!"
       write_error(ShardBroker::Status::TIMEOUT_ERROR)
-      close
+      close_connection
     end
 
     def writeActionError(action, status, msg=nil)
