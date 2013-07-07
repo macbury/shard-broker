@@ -11,6 +11,8 @@ module ShardBroker
         node = nil
         if qname == ProtocolTags::SESSION_TAG
           node = nil
+        elsif qname == ProtocolTags::PING_TAG
+          node = ShardBroker::Ping.new
         elsif qname == ShardBroker::Action::TAG
           node = ShardBroker::Action.new
         elsif qname == ShardBroker::Response::TAG
@@ -28,10 +30,12 @@ module ShardBroker
       @parser.listen(:end_element) do |uri, localname, qname|
         if qname == ProtocolTags::SESSION_TAG
           ShardBroker.logger.info "Recived session finish tag"
-          close
+          close_connection_after_writing
         elsif !@current_node.nil? 
           if @current_node.parent.nil?
-            if @current_node.haveValidId?
+            if @current_node.is?(ProtocolTags::PING_TAG)
+              ping!
+            elsif @current_node.haveValidId?
               runStateWith(@current_node)
             else
               write_error(ShardBroker::Status::NO_ID_ATTRIBUTE)
@@ -63,9 +67,8 @@ module ShardBroker
       begin
         @parser.parse
       rescue REXML::ParseException => e
-        write_error ShardBroker::Status::PARSER_ERROR, e
-      rescue Encoding::CompatibilityError => e
-        write_error ShardBroker::Status::PARSER_ERROR, e
+        write_error ShardBroker::Status::PARSER_ERROR, e.to_s
+        close
       end
     end
 
@@ -81,7 +84,7 @@ module ShardBroker
           ShardBroker.logger.debug line.gsub("\n", "").green 
         end
       end
-      self.send_data(out)
+      self.send_data(out+"\n")
     end
 
   end

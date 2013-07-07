@@ -19,6 +19,10 @@ module ShardBroker
       @connectionSecret
     end
 
+    def ping!
+      
+    end
+
     def receive_data(data)
       read(data)
     end

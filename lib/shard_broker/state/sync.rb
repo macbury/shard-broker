@@ -10,7 +10,10 @@ module ShardBroker
       end
 
       def onAction(node)
-        
+      end
+
+      def onPing!
+        ShardBroker.logger.info "Ping!"
       end
 
       def onExit

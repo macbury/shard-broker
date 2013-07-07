@@ -35,7 +35,12 @@ module ShardBroker
     end
   end
 
+  def self.uptime
+    (Time.now - @startTime).round
+  end
+
   def self.start
+    @startTime = Time.now
     EventMachine.run do
       connectToDB
       Signal.trap("INT")  { EventMachine.stop }

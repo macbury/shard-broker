@@ -25,7 +25,9 @@ module ShardBroker
     def runStateWith(node)
       if getCurrentState
         EM.synchrony do 
-          if node.is?(ShardBroker::Action::TAG)
+          if node.is?(ShardBroker::ProtocolTags::PING_TAG)
+            getCurrentState.onPing!
+          elsif node.is?(ShardBroker::Action::TAG)
             getCurrentState.onAction(node)
           elsif node.is?(ShardBroker::Response::TAG)
             getCurrentState.onResponse(node)

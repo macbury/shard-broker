@@ -7,6 +7,10 @@ module ShardBroker
         self.connection = connection
       end
 
+      def onPing!
+        
+      end
+
       def onResponse(action)
         raise "Implement onAction"
       end

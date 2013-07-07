@@ -6,6 +6,14 @@ module ShardBroker
       def onEnter
         timeoutAfter!(TIMEOUT)
         connection.send_start_stream_tag
+
+        action = Action.new
+        action.setId(ShardBroker.guid)
+        action.setType("status")
+        action.addParam("secret", connection.getConnectionSecret)
+        action.addParam("version", VERSION)
+        action.addParam("uptime", ShardBroker.uptime)
+        connection.write(action)
       end
 
       def onAction(node)
