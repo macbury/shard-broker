@@ -18,7 +18,9 @@ module ShardBroker
 
       def onAction(node)
         if node.is?(ShardBroker::Action::TAG)
-          if node.type?(ShardBroker::Action::ACTION_REGISTRATION)
+          if node.type?(ShardBroker::Action::ACTION_CAPTCHA)
+            generateCaptcha!(node) 
+          elsif node.type?(ShardBroker::Action::ACTION_REGISTRATION)
             handleRegistrationNode(node) 
           elsif node.type?(ShardBroker::Action::ACTION_AUTH)
             handleAuthNode(node) 
@@ -47,30 +49,53 @@ module ShardBroker
           "device"          => nil,
           "signing-key"     => nil,
           "encryption-key"  => nil,
+          "captcha"         => nil
         }.merge(node.params)
 
-        user = User.authOrCreateByEmailAndPassword(params["email"], params["password"])
+        token = Token.where(code: params["captcha"]).first
+        if token.nil?
+          connection.writeActionError(node, ShardBroker::Status::INVALID_PASSWORD_ERROR, "Invalid captcha token")
+        else
+          user = User.authOrCreateByEmailAndPassword(params["email"], params["password"])
 
-        if user
-          if user.valid?
-            peer     = user.addPeer(params["device"], params["encryption-key"], params["signing-key"]) 
-            if peer.valid?
-              response = node.getResponse
-              response.setStatus(ShardBroker::Status::SUCCESS)
-              response.addParam("token", peer.token)
-              response.addParam("in-relationship", user.inRelationship?)
+          if user
+            if user.valid?
+              peer     = user.addPeer(params["device"], params["encryption-key"], params["signing-key"]) 
+              if peer.valid?
+                token.destroy
 
-              connection.write(response)
-              proceedAuthWithPeer(peer)
+                response = node.getResponse
+                response.setStatus(ShardBroker::Status::SUCCESS)
+                response.addParam("token", peer.token)
+                response.addParam("in-relationship", user.inRelationship?)
+
+                connection.write(response)
+                proceedAuthWithPeer(peer)
+              else
+                connection.writeActionError(node, ShardBroker::Status::REGISTRATION_ERROR, peer.errors.full_messages.join(", "))
+              end
             else
-              connection.writeActionError(node, ShardBroker::Status::REGISTRATION_ERROR, peer.errors.full_messages.join(", "))
+              connection.writeActionError(node, ShardBroker::Status::REGISTRATION_ERROR, user.errors.full_messages.join(", "))
             end
           else
-            connection.writeActionError(node, ShardBroker::Status::REGISTRATION_ERROR, user.errors.full_messages.join(", "))
+            connection.writeActionError(node, ShardBroker::Status::INVALID_PASSWORD_ERROR, "Invalid password")
           end
-        else
-          connection.writeActionError(node, ShardBroker::Status::INVALID_PASSWORD_ERROR, "Invalid password")
         end
+      end
+
+      def generateCaptcha!(node)
+        captcha = ShardBroker::Captcha.new
+
+        EM.defer proc { captcha.generate! }, proc { 
+          ShardBroker.logger.info "Generated captcha: #{captcha.code}"
+          
+          Token.create(code: captcha.code)
+          response = node.getResponse
+
+          response.setStatus(ShardBroker::Status::SUCCESS)
+          response.addParam("image", captcha.data64)
+          connection.write(response)
+        }
       end
 
       def handleAuthNode(node)

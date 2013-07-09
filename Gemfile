@@ -12,3 +12,4 @@ gem "mysql2"
 gem "activerecord"
 
 gem "pry"
+gem "rmagick"

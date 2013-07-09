@@ -46,6 +46,7 @@ module ShardBroker
       Signal.trap("INT")  { EventMachine.stop }
       Signal.trap("TERM") { EventMachine.stop }
       ShardBroker.logger.info "Starting server on port 50000"
+      
       EventMachine.start_server("0.0.0.0", 50000, ShardBroker::Connection)
     end
   end

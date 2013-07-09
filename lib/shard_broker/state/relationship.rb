@@ -2,7 +2,7 @@ module ShardBroker
   module State
     class Relationship < Base
       def onEnter 
-        connection.peer.user.invitations.isNotAccepted.all.each do |invitation|
+        connection.peer.user.invitations.isNotAccepted.each do |invitation|
           connection.write(buildInvitationAction(invitation.user))
         end
       end

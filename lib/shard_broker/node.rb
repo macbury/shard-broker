@@ -25,6 +25,12 @@ module ShardBroker
       elements.to_a.inject({}) { |out, element| out[element.name] = element.text; out;  }
     end
 
+    def addArray(key, options={})
+      p      = REXML::Element.new(key)
+      p.add_attribute(options)
+      self << p
+    end
+
     def addParam(key, value)
       p      = REXML::Element.new(key)
       p.text = value

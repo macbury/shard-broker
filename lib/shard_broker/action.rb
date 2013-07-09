@@ -7,6 +7,7 @@ module ShardBroker
     ACTION_INVITE             = "invite"
     ACTION_INVITE_ACCEPT      = "invite-accept"
     ACTION_AUTH               = "auth"
+    ACTION_CAPTCHA            = "captcha"
     ACTION_REGISTRATION       = "register-or-login"
     ELEMENT_TOKEN             = "token"
     DEVICE_TAG                = "device"

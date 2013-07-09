@@ -58,6 +58,7 @@ module ShardBroker
     end
 
     def unbind
+      exitState
       ShardBroker.server.pop(self)
       ShardBroker.logger.info "Client disconnected #{@ip}:#{@port}"
     end

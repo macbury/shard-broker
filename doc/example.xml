@@ -17,6 +17,14 @@
     </device>
   </response>
   
+  <action type="captcha" id="10">
+    <image>123456</image>
+  </action>
+
+  <action type="captcha-solved" id="10">
+    <code>123456</code>
+  </action>
+
   <action type="invite" id="10">
     <email>test@test.test</email>
   </action>
