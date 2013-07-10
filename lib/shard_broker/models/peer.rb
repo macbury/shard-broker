@@ -5,6 +5,7 @@ class Peer < ActiveRecord::Base
   validates :encryption_key, :signing_key, presence: true
 
   before_create :generate_token
+  has_many      :shards, dependent: :delete_all
 
   def generate_token
     while true
