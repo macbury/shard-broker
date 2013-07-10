@@ -20,7 +20,7 @@ module ShardBroker
     end
 
     def ping!
-      
+      ShardBroker.logger.info "Ping!"
     end
 
     def receive_data(data)

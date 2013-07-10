@@ -14,6 +14,7 @@ require "rexml/formatters/transitive"
 require "em-synchrony"
 require "em-synchrony/mysql2"
 require "em-synchrony/activerecord"
+require "em-gcm"
 
 require_relative "commands"
 require_relative "shard_broker"

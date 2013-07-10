@@ -13,3 +13,5 @@ gem "activerecord"
 
 gem "pry"
 gem "rmagick"
+
+gem "em-gcm", git: "https://github.com/getlua/em-gcm"

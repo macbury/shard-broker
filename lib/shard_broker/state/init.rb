@@ -70,7 +70,7 @@ module ShardBroker
                 response.addParam("in-relationship", user.inRelationship?)
 
                 connection.write(response)
-                proceedAuthWithPeer(peer)
+                proceedAuthWithPeer(peer, node)
               else
                 connection.writeActionError(node, ShardBroker::Status::REGISTRATION_ERROR, peer.errors.full_messages.join(", "))
               end
@@ -101,7 +101,8 @@ module ShardBroker
       def handleAuthNode(node)
         if node.have?(ShardBroker::Action::ELEMENT_TOKEN)
           params = {
-            "token" => nil
+            "token"               => nil,
+            "gcm-registration-id" => nil
           }.merge(node.params)
 
           peer = Peer.where(token: params["token"]).first
@@ -113,7 +114,7 @@ module ShardBroker
 
             connection.write(response)
 
-            proceedAuthWithPeer(peer)
+            proceedAuthWithPeer(peer, node)
           else
             connection.writeActionError(node, ShardBroker::Status::INVALID_PASSWORD_ERROR, "Invalid token")
           end
@@ -122,10 +123,11 @@ module ShardBroker
         end
       end
 
-      def proceedAuthWithPeer(peer)
+      def proceedAuthWithPeer(peer, node)
         ShardBroker.server.closeConnectionForPeer(peer)
-        connection.peer = peer
-        peer.last_login = Time.now
+        connection.peer          = peer
+        peer.last_login          = Time.now
+        peer.gcm_registration_id = node.getParam("gcm-registration-id")
         peer.save
 
         if peer.user.inRelationship?

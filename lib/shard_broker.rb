@@ -15,6 +15,14 @@ module ShardBroker
     @logger.getLogger
   end
 
+  def self.gcm
+    if @gcm.nil?
+      config = YAML::load(File.open(File.expand_path('../../config.yml',  __FILE__)))
+      @gcm    = EM::GCM::Client.new(config[:gcm_key])
+    end
+    @gcm
+  end
+
   def self.server
     @server ||= ShardBroker::Server.new
   end
@@ -42,7 +50,8 @@ module ShardBroker
   def self.start
     @startTime = Time.now
     EventMachine.run do
-      connectToDB
+      ShardBroker.gcm
+      ShardBroker.connectToDB
       Signal.trap("INT")  { EventMachine.stop }
       Signal.trap("TERM") { EventMachine.stop }
       ShardBroker.logger.info "Starting server on port 50000"
