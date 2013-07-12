@@ -10,9 +10,11 @@ module ShardBroker
     end
 
     def wakeDevices(peers)
-      notification = {
+      registration_ids = peers.map(&:gcm_registration_id).compact
+      return if registration_ids.empty?
+      notification     = {
         restricted_package_name:  "com.macbury.secondhalf",
-        registration_ids:         peers.map(&:gcm_registration_id).compact,
+        registration_ids:         registration_ids,
         data:                     { 'action' => 'connect' },
       }
 
@@ -33,7 +35,7 @@ module ShardBroker
       end
     end
 
-    def sendActionToUser(msg, user)
+    def sendActionToUser(msg, user, options={})
       peers = []
       findConnectionByUser(user).each do |connection|
         connection.write(msg)
@@ -41,9 +43,8 @@ module ShardBroker
       end
 
       peersToWake = user.peers.where("id NOT IN (:id)", { id: [peers.map(&:id), -1].flatten }).all
-      peersToWake.each do |peer|
-        peer.shards.create(content: msg)
-      end
+      peersToWake.each { |peer| peer.shards.create(content: msg) } if options[:persist]
+      
       wakeDevices(peersToWake) if peersToWake.size > 0
     end
 

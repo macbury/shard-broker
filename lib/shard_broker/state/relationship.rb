@@ -53,7 +53,7 @@ module ShardBroker
                 response = node.getResponse
                 response.setStatus(ShardBroker::Status::SUCCESS)
                 connection.write(response)
-                ShardBroker.server.sendActionToUser(buildInvitationAction(currentUser), userToInvite)
+                ShardBroker.server.sendActionToUser(buildInvitationAction(currentUser), userToInvite, { persist: false })
                 ShardBroker.server.closeConnectionForUser(userToInvite)
                 ShardBroker.server.closeConnectionForUser(currentUser)
               else

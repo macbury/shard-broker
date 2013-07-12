@@ -1,7 +1,7 @@
 class Peer < ActiveRecord::Base
   belongs_to :user
 
-  validates :device_id, presence: true, uniqueness: true, length: { minimum: 3, maximum: 32 }
+  validates :device_id, presence: true, uniqueness: { scope: :user_id }, length: { minimum: 3, maximum: 32 }
   validates :encryption_key, :signing_key, presence: true
 
   before_create :generate_token
